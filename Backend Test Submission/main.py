@@ -2,33 +2,13 @@ from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, HttpUrl, validator
 from datetime import datetime, timedelta
+from logging_middleware.logger import log
+from logging_middleware.middleware import LoggingMiddleware
 import string
 import random
 import uvicorn
-
-# --- Logging Middleware (from pre-test setup) ---
-class LoggingMiddleware:
-    def __init__(self, app: FastAPI, logger):
-        self.app = app
-        self.logger = logger
-
-    async def __call__(self, request: Request, call_next):
-        start_time = datetime.utcnow()
-        self.logger.log_request(request)
-        response: Response = await call_next(request)
-        process_time = (datetime.utcnow() - start_time).total_seconds()
-        self.logger.log_response(request, response, process_time)
-        return response
-
-# --- Simple Logger Implementation Stub ---
-class SimpleLogger:
-    def log_request(self, request: Request):
-        # Implement structured logging of incoming requests
-        print(f"REQUEST: {request.method} {request.url}")
-
-    def log_response(self, request: Request, response: Response, process_time: float):
-        # Implement structured logging of outgoing responses
-        print(f"RESPONSE: {request.method} {request.url} -> {response.status_code} in {process_time}s")
+import sys
+import os
 
 # --- Data Models ---
 class ShortURLRequest(BaseModel):
@@ -53,7 +33,7 @@ class ShortURLInfo(BaseModel):
 
 # --- Application Setup ---
 app = FastAPI()
-logger = SimpleLogger()
+logger = log()
 app.middleware('http')(LoggingMiddleware(app, logger))
 
 # --- In-Memory Storage ---
