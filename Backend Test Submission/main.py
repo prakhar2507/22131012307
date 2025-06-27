@@ -2,13 +2,14 @@ from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, HttpUrl, validator
 from datetime import datetime, timedelta
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from logging_middleware.logger import log
 from logging_middleware.middleware import LoggingMiddleware
 import string
 import random
 import uvicorn
-import sys
-import os
 
 # --- Data Models ---
 class ShortURLRequest(BaseModel):
